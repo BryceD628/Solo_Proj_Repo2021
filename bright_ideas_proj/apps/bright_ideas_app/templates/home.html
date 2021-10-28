@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solo Project</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
+        crossorigin="anonymous"></script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+    <div id='wrapper'>
+        <div class="row border-bottom border-4 border-info" id="header">
+            <div class="col-8">
+                <h1>The Wall</h1>
+            </div>
+            <div class="col-2 gy-3">
+                <p>Welcome: {{this_user.first_name}}</p>
+            </div>
+            <div class="col-2 gy-3">
+                <a href="/">Log Off</a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-8">
+                <form action="message/create" method="POST">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label class="h3 text-primary" for="message">Post a Message</label>
+                        <textarea class="form-control" name="message" rows="3"></textarea>
+                        <div class="d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary">Post</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col-2"></div>
+        </div>
+        <div class="row">
+            <div class="col-2"></div>
+            <div class="col-8 ">
+                <ul class="list-unstyled">
+                    {% for message in all_messages %}
+                    <li><label class="fw-bold mt-5 text-primary" for="messages">{{message.user_id.first_name}}
+                            {{message.user_id.last_name}} : </label>
+                    </li>
+                    <li><textarea class="form-control border-0 fs-4" name="messages"
+                            rows="3"> {{message.message}}</textarea></li>
+                    {% if message.user_id.id == this_user.id %}
+                    <form action="message/delete" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger me-md-2">Delete Message</button>
+                        <input type="hidden" name="message_id" value="{{message.id}}"></li>
+                    </form>
+                    {% endif %}
+                    <!-- This next one gave me some trouble.  Look at the models -->
+                    {% for comment in message.message_comments.all %}
+                    <li class="ms-5 fw-bold mt-2 text-info">{{comment.user_id.first_name}} </li>
+                    <li class="ms-5 fst-italic">{{comment.comment}}</li>
+                    <li>
+                        {% if comment.user_id.id == this_user.id %}
+                        <form action="comment/delete" method="POST">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger  ">Delete Comment</button>
+                            <input type="hidden" name="comment_id" value="{{comment.id}}">
+                    </li>
+                    </form>
+                    {% endif %}
+                    {% endfor %}
+                    <li>
+                        <form action="comment/create" method="POST">
+                            {% csrf_token %}
+                            <label for="message_comment">Post a Comment</label>
+                            <textarea class="form-control" name="message_comment" rows="3"></textarea>
+                    </li>
+                    <div class="d-md-flex justify-content-md-end">
+                        <button type="submit" class="btn btn-outline-success me-md-2 mt-3">Comment</button>
+                        <input type="hidden" name="message_id" value="{{message.id}}">
+                        </form>
+                    </div>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-2"></div>
+        </div>
+
+    </div>
+</body>
+
+</html>
